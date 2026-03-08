@@ -1,5 +1,6 @@
 package com.kjmaster.taskflow.project;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(
             @RequestParam String username,
-            @RequestBody CreateProjectRequest request) {
+            @Valid @RequestBody CreateProjectRequest request) {
         ProjectResponse response = projectService.createProject(username, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

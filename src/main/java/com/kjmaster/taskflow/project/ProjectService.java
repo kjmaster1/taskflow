@@ -1,5 +1,6 @@
 package com.kjmaster.taskflow.project;
 
+import com.kjmaster.taskflow.exception.NotFoundException;
 import com.kjmaster.taskflow.user.User;
 import com.kjmaster.taskflow.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class ProjectService {
     public ProjectResponse createProject(String username,
                                          CreateProjectRequest request) {
         User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
         Project project = new Project();
         project.setName(request.name());
@@ -35,7 +36,7 @@ public class ProjectService {
 
     public List<ProjectResponse> getUserProjects(String username) {
         User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
         return projectRepository.findByOwner(owner)
                 .stream()
