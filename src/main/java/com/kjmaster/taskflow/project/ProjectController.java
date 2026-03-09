@@ -30,4 +30,21 @@ public class ProjectController {
         List<ProjectResponse> projects = projectService.getUserProjects(username);
         return ResponseEntity.ok(projects);
     }
+
+    @PatchMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> updateProject(
+            @RequestParam String username,
+            @PathVariable Long projectId,
+            @Valid @RequestBody UpdateProjectRequest request) {
+        ProjectResponse response = projectService.updateProject(username, projectId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(
+            @RequestParam String username,
+            @PathVariable Long projectId) {
+        projectService.deleteProject(username, projectId);
+        return ResponseEntity.noContent().build();
+    }
 }

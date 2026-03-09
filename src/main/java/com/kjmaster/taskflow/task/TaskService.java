@@ -40,6 +40,48 @@ public class TaskService {
         return TaskResponse.from(saved);
     }
 
+    public TaskResponse updateTask(String username, Long projectId, Long taskId, UpdateTaskRequest request) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        var project = projectRepository.findByIdAndOwner(projectId, owner)
+                .orElseThrow(() -> new NotFoundException("Project not found: " + projectId));
+        var task = taskRepository.findByIdAndProject(taskId, project)
+                .orElseThrow(() -> new NotFoundException("Task not found: " + taskId));
+
+        if (request.name() != null) {
+            task.setName(request.name());
+        }
+
+        if (request.description() != null) {
+            task.setDescription(request.description());
+        }
+
+        if (request.priority() != null) {
+            task.setPriority(request.priority());
+        }
+
+        if (request.status() != null) {
+            task.setStatus(request.status());
+        }
+
+        if (request.dueDate() != null) {
+            task.setDueDate(request.dueDate());
+        }
+
+        Task saved = taskRepository.save(task);
+        return TaskResponse.from(saved);
+    }
+
+    public void deleteTask(String username, Long projectId, Long taskId) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        var project = projectRepository.findByIdAndOwner(projectId, owner)
+                .orElseThrow(() -> new NotFoundException("Project not found: " + projectId));
+        var task = taskRepository.findByIdAndProject(taskId, project)
+                .orElseThrow(() -> new NotFoundException("Task not found: " + taskId));
+        taskRepository.delete(task);
+    }
+
     public List<TaskResponse> getProjectTasks(String username, Long projectId) {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));

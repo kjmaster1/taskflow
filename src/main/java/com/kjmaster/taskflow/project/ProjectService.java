@@ -34,6 +34,33 @@ public class ProjectService {
         return ProjectResponse.from(saved);
     }
 
+    public ProjectResponse updateProject(String username, Long projectId, UpdateProjectRequest request) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        var project = projectRepository.findByIdAndOwner(projectId, owner)
+                .orElseThrow(() -> new NotFoundException("Project not found: " + projectId));
+
+        if (request.name() != null) {
+            project.setName(request.name());
+        }
+
+        if (request.description() != null) {
+            project.setDescription(request.description());
+        }
+
+        Project saved = projectRepository.save(project);
+        return ProjectResponse.from(saved);
+    }
+
+    public void deleteProject(String username, Long projectId) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        var project = projectRepository.findByIdAndOwner(projectId, owner)
+                .orElseThrow(() -> new NotFoundException("Project not found: " + projectId));
+
+        projectRepository.delete(project);
+    }
+
     public List<ProjectResponse> getUserProjects(String username) {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
