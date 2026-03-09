@@ -1,8 +1,11 @@
 package com.kjmaster.taskflow.project;
 
+import com.kjmaster.taskflow.task.Task;
 import com.kjmaster.taskflow.user.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "projects")
@@ -22,6 +25,9 @@ public class Project {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -37,5 +43,6 @@ public class Project {
     public void setDescription(String description) { this.description = description; }
     public User getOwner() { return owner; }
     public void setOwner(User owner) { this.owner = owner; }
+    public List<Task> getTasks() { return tasks; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
