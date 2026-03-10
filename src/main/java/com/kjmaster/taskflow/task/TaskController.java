@@ -5,6 +5,7 @@ import com.kjmaster.taskflow.project.UpdateProjectRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId,
             @Valid @RequestBody CreateTaskRequest request) {
         TaskResponse response = taskService.createTask(username, projectId, request);
@@ -30,7 +31,7 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getProjectTasks(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId) {
         List<TaskResponse> tasks = taskService.getProjectTasks(username, projectId);
         return ResponseEntity.ok(tasks);
@@ -38,7 +39,7 @@ public class TaskController {
 
     @PatchMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId,
             @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskRequest request) {
@@ -48,7 +49,7 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId,
             @PathVariable Long taskId) {
         taskService.deleteTask(username, projectId, taskId);

@@ -25,4 +25,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("User registered successfully");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
+        String token = userService.login(request.username(), request.password());
+        return ResponseEntity.ok(token);
+    }
 }

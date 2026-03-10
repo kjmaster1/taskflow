@@ -3,6 +3,7 @@ package com.kjmaster.taskflow.project;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @Valid @RequestBody CreateProjectRequest request) {
         ProjectResponse response = projectService.createProject(username, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -26,14 +27,14 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getUserProjects(
-            @RequestParam String username) {
+            @AuthenticationPrincipal String username) {
         List<ProjectResponse> projects = projectService.getUserProjects(username);
         return ResponseEntity.ok(projects);
     }
 
     @PatchMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId,
             @Valid @RequestBody UpdateProjectRequest request) {
         ProjectResponse response = projectService.updateProject(username, projectId, request);
@@ -42,7 +43,7 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(
-            @RequestParam String username,
+            @AuthenticationPrincipal String username,
             @PathVariable Long projectId) {
         projectService.deleteProject(username, projectId);
         return ResponseEntity.noContent().build();
