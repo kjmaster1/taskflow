@@ -61,7 +61,7 @@ public class TaskService {
         }
 
         if (request.status() != null) {
-            task.setStatus(request.status());
+            task.transitionTo(request.status());
         }
 
         if (request.dueDate() != null) {

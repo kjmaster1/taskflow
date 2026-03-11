@@ -1,0 +1,2 @@
+ALTER TABLE tasks ADD COLUMN started_at TIMESTAMP;
+ALTER TABLE tasks ADD COLUMN completed_at TIMESTAMP;

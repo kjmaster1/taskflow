@@ -9,6 +9,8 @@ public record TaskResponse(
         TaskStatus status,
         TaskPriority priority,
         LocalDateTime createdAt,
+        LocalDateTime startedAt,
+        LocalDateTime completedAt,
         LocalDateTime dueDate
 ) {
     public static TaskResponse from(Task task) {
@@ -19,6 +21,8 @@ public record TaskResponse(
                 task.getStatus(),
                 task.getPriority(),
                 task.getCreatedAt(),
+                task.getStartedAt(),
+                task.getCompletedAt(),
                 task.getDueDate()
         );
     }
