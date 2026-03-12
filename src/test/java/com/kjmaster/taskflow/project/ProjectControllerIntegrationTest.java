@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kjmaster.taskflow.security.JwtUtil;
 import com.kjmaster.taskflow.user.User;
 import com.kjmaster.taskflow.user.UserRepository;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +79,7 @@ class ProjectControllerIntegrationTest {
     @Test
     void createProject_success() throws Exception {
         mockMvc.perform(post("/projects")
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new CreateProjectRequest("My Project", "Description"))))
@@ -99,7 +100,7 @@ class ProjectControllerIntegrationTest {
     @Test
     void createProject_blankName_returns400() throws Exception {
         mockMvc.perform(post("/projects")
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new CreateProjectRequest("", "Description"))))
@@ -113,7 +114,7 @@ class ProjectControllerIntegrationTest {
         createProject("Project One", "Desc", userA);
 
         mockMvc.perform(get("/projects")
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("Project One"));
@@ -122,7 +123,7 @@ class ProjectControllerIntegrationTest {
     @Test
     void getProjects_noProjects_returnsEmptyList() throws Exception {
         mockMvc.perform(get("/projects")
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -140,7 +141,7 @@ class ProjectControllerIntegrationTest {
         Project project = createProject("Old Name", "Old Desc", userA);
 
         mockMvc.perform(patch("/projects/" + project.getId())
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateProjectRequest("New Name", null))))
@@ -154,7 +155,7 @@ class ProjectControllerIntegrationTest {
         Project project = createProject("User A Project", "Desc", userA);
 
         mockMvc.perform(patch("/projects/" + project.getId())
-                        .header("Authorization", "Bearer " + userBToken)
+                        .cookie(new Cookie("jwt", userBToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateProjectRequest("Hacked", null))))
@@ -164,7 +165,7 @@ class ProjectControllerIntegrationTest {
     @Test
     void updateProject_wrongId_returns404() throws Exception {
         mockMvc.perform(patch("/projects/99999")
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateProjectRequest("New Name", null))))
@@ -178,7 +179,7 @@ class ProjectControllerIntegrationTest {
         Project project = createProject("To Delete", "Desc", userA);
 
         mockMvc.perform(delete("/projects/" + project.getId())
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isNoContent());
     }
 
@@ -187,14 +188,14 @@ class ProjectControllerIntegrationTest {
         Project project = createProject("User A Project", "Desc", userA);
 
         mockMvc.perform(delete("/projects/" + project.getId())
-                        .header("Authorization", "Bearer " + userBToken))
+                        .cookie(new Cookie("jwt", userBToken)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void deleteProject_wrongId_returns404() throws Exception {
         mockMvc.perform(delete("/projects/99999")
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isNotFound());
     }
 }

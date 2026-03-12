@@ -2,12 +2,14 @@ package com.kjmaster.taskflow.user;
 
 import com.kjmaster.taskflow.exception.ConflictException;
 import com.kjmaster.taskflow.security.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -96,31 +98,36 @@ class UserServiceTest {
     }
 
     @Test
-    void login_Success_ReturnsToken() {
-        when(userRepository.findByUsername("testuser"))
+    void login_Success_SetsCookie() {
+        LoginRequest request = new LoginRequest("testuser@test.com", "password123");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        when(userRepository.findByEmail("testuser@test.com"))
                 .thenReturn(Optional.of(existingUser));
-        when(passwordEncoder.matches("password123",
-                existingUser.getPassword()))
+        when(passwordEncoder.matches("password123", existingUser.getPassword()))
                 .thenReturn(true);
         when(jwtUtil.generateToken("testuser"))
                 .thenReturn("mock.jwt.token");
 
-        String token = userService.login("testuser", "password123");
+        userService.login(request, response);
 
-        assertEquals("mock.jwt.token", token);
         verify(jwtUtil).generateToken("testuser");
+        verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
     }
 
     @Test
     void login_WrongPassword_ThrowsException() {
-        when(userRepository.findByUsername("testuser"))
+        LoginRequest request = new LoginRequest("testuser@test.com", "wrongpassword");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        when(userRepository.findByEmail("testuser@test.com"))
                 .thenReturn(Optional.of(existingUser));
         when(passwordEncoder.matches(anyString(), anyString()))
                 .thenReturn(false);
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.login("testuser", "wrongpassword")
+                () -> userService.login(request, response)
         );
 
         verify(jwtUtil, never()).generateToken(anyString());

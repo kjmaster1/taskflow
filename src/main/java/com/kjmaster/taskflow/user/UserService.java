@@ -3,8 +3,13 @@ package com.kjmaster.taskflow.user;
 import com.kjmaster.taskflow.exception.ConflictException;
 import com.kjmaster.taskflow.exception.NotFoundException;
 import com.kjmaster.taskflow.security.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.Duration;
 
 @Service
 public class UserService {
@@ -37,14 +42,24 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String login(String username, String password) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+    public void login(LoginRequest request, HttpServletResponse response) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid password");
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid credentials");
         }
 
-        return jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(user.getUsername());
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }

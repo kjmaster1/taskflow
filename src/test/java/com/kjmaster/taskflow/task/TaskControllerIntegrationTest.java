@@ -6,6 +6,7 @@ import com.kjmaster.taskflow.project.ProjectRepository;
 import com.kjmaster.taskflow.security.JwtUtil;
 import com.kjmaster.taskflow.user.User;
 import com.kjmaster.taskflow.user.UserRepository;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +100,7 @@ class TaskControllerIntegrationTest {
     @Test
     void createTask_success() throws Exception {
         mockMvc.perform(post("/projects/" + projectA.getId() + "/tasks")
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new CreateTaskRequest("New Task", "Desc", TaskPriority.HIGH, null))))
@@ -122,7 +123,7 @@ class TaskControllerIntegrationTest {
     @Test
     void createTask_wrongUser_returns404() throws Exception {
         mockMvc.perform(post("/projects/" + projectA.getId() + "/tasks")
-                        .header("Authorization", "Bearer " + userBToken)
+                        .cookie(new Cookie("jwt", userBToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new CreateTaskRequest("New Task", "Desc", TaskPriority.HIGH, null))))
@@ -136,7 +137,7 @@ class TaskControllerIntegrationTest {
         createTask("Task One", TaskStatus.TODO);
 
         mockMvc.perform(get("/projects/" + projectA.getId() + "/tasks")
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value("Task One"));
@@ -145,7 +146,7 @@ class TaskControllerIntegrationTest {
     @Test
     void getTasks_noTasks_returnsEmptyList() throws Exception {
         mockMvc.perform(get("/projects/" + projectA.getId() + "/tasks")
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -157,7 +158,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("Task", TaskStatus.TODO);
 
         mockMvc.perform(patch("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateTaskRequest(null, null, TaskStatus.IN_PROGRESS, null, null))))
@@ -172,7 +173,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("Task", TaskStatus.IN_PROGRESS);
 
         mockMvc.perform(patch("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateTaskRequest(null, null, TaskStatus.DONE, null, null))))
@@ -186,7 +187,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("Task", TaskStatus.TODO);
 
         mockMvc.perform(patch("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateTaskRequest(null, null, TaskStatus.DONE, null, null))))
@@ -198,7 +199,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("Task", TaskStatus.IN_PROGRESS);
 
         mockMvc.perform(patch("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userAToken)
+                        .cookie(new Cookie("jwt", userAToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateTaskRequest(null, null, TaskStatus.TODO, null, null))))
@@ -212,7 +213,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("To Delete", TaskStatus.TODO);
 
         mockMvc.perform(delete("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userAToken))
+                        .cookie(new Cookie("jwt", userAToken)))
                 .andExpect(status().isNoContent());
     }
 
@@ -221,7 +222,7 @@ class TaskControllerIntegrationTest {
         Task task = createTask("Task", TaskStatus.TODO);
 
         mockMvc.perform(delete("/projects/" + projectA.getId() + "/tasks/" + task.getId())
-                        .header("Authorization", "Bearer " + userBToken))
+                        .cookie(new Cookie("jwt", userBToken)))
                 .andExpect(status().isNotFound());
     }
 }

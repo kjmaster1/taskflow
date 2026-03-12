@@ -91,7 +91,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void login_Success_ReturnsToken() throws Exception {
+    void login_Success_SetsCookie() throws Exception {
         RegisterRequest registerRequest = new RegisterRequest(
                 "test@example.com",
                 "testuser",
@@ -104,7 +104,7 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isCreated());
 
         LoginRequest loginRequest = new LoginRequest(
-                "testuser",
+                "test@example.com",
                 "password123"
         );
 
@@ -112,9 +112,8 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.not(
-                        org.hamcrest.Matchers.emptyString()
-                )));
+                .andExpect(cookie().exists("jwt"))
+                .andExpect(cookie().httpOnly("jwt", true));
     }
 
     @Test
@@ -131,7 +130,7 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isCreated());
 
         LoginRequest loginRequest = new LoginRequest(
-                "testuser",
+                "test@example.com",
                 "wrongpassword"
         );
 
