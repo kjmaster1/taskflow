@@ -1,2 +1,3 @@
 /mvnw text eol=lf
+mvnw linguist-language=Shell
 *.cmd text eol=crlf
