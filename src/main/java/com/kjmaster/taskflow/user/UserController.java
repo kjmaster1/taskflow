@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/users/logout")
+    @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
