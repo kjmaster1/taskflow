@@ -57,7 +57,7 @@ public class UserService {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofDays(1))
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
